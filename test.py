@@ -1,0 +1,3 @@
+test = []
+
+string = ' '.join(test)
