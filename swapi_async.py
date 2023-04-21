@@ -52,7 +52,7 @@ async def paste_to_db(people_json):
         await session.commit()
 
 
-MAX_REQ = 1
+MAX_REQ = 9
 async def main():
     async with engine.begin() as con:
         await con.run_sync(Base.metadata.create_all)
