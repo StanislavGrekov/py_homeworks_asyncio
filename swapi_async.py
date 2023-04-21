@@ -11,9 +11,18 @@ async def get_people(people_id, client):
         return json_data
 
 
+async def get_len(client):
+    response = await client.get(f'https://swapi.dev/api/people/')
+    info = await response.json()
+    print(info)
+    person_quantity = info['count']
+
+    return person_quantity
+
+
+
 async def paste_to_db(people_json):
     async with Session() as session:
-        print(people_json)
         people_list = []
         for element in people_json:
 
@@ -37,22 +46,25 @@ async def paste_to_db(people_json):
                            'vehicles': vehicles
                            }
             people_list.append(people_dict)
-        pprint(people_list)
+        print(people_list)
         orm_object = [SwapiPeople(**item) for item in people_list]
-        print(orm_object)
         session.add_all(orm_object)
         await session.commit()
 
 
-MAX_REQ = 5
+MAX_REQ = 1
 async def main():
     async with engine.begin() as con:
         await con.run_sync(Base.metadata.create_all)
 
     tasks = []
+
     async with aiohttp.ClientSession() as client:
 
-        for i in chunked(range(1,10), MAX_REQ):
+        len_person = await get_len(client)
+
+        for i in chunked(range(1, len_person), MAX_REQ):
+            print(i)
             person_coros = []
             for people_id in i:
                 person_coro = get_people(people_id, client)
