@@ -14,7 +14,7 @@ async def get_people(people_id, client):
 async def get_len(client):
     response = await client.get(f'https://swapi.dev/api/people/')
     info = await response.json()
-    print(info)
+
     person_quantity = info['count']
 
     return person_quantity
@@ -26,26 +26,31 @@ async def paste_to_db(people_json):
         people_list = []
         for element in people_json:
 
-            films = ' '.join(element['films'])
-            species = ' '.join(element['species'])
-            starships = ' '.join(element['starships'])
-            vehicles = ' '.join(element['vehicles'])
+            try:
+                films = ', '.join(element['films'])
+                species = ', '.join(element['species'])
+                starships = ', '.join(element['starships'])
+                vehicles = ', '.join(element['vehicles'])
 
-            people_dict = {'birth_year':element['birth_year'],
-                           'eye_color': element['eye_color'],
-                           'films': films,
-                           'gender':element['gender'],
-                           'hair_color':element['hair_color'],
-                           'height':element['height'],
-                           'homeworld':element['homeworld'],
-                           'mass':element['mass'],
-                           'name':element['name'],
-                           'skin_color':element['skin_color'],
-                           'species':species,
-                           'starships':starships,
-                           'vehicles': vehicles
-                           }
+                people_dict = {'birth_year':element['birth_year'],
+                               'eye_color': element['eye_color'],
+                               'films': films,
+                               'gender':element['gender'],
+                               'hair_color':element['hair_color'],
+                               'height':element['height'],
+                               'homeworld':element['homeworld'],
+                               'mass':element['mass'],
+                               'name':element['name'],
+                               'skin_color':element['skin_color'],
+                               'species':species,
+                               'starships':starships,
+                               'vehicles': vehicles
+                               }
+            except KeyError:
+                pass
+
             people_list.append(people_dict)
+
         print(people_list)
         orm_object = [SwapiPeople(**item) for item in people_list]
         session.add_all(orm_object)
@@ -78,7 +83,6 @@ async def main():
     tasks = asyncio.all_tasks() - {asyncio.current_task(), }
     for task in tasks:
         await task
-
 
 
 if __name__=='__main__':
